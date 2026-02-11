@@ -1,6 +1,10 @@
-# C++ Basic How-Tos
+# C++ Basic Quick-Ref
 
-> Plain C++ fundamentals. No engine, no framework.
+> Plain C++ fundamentals.  
+> Full In-Depth Tutorial: https://www.learncpp.com  
+> C++ Documentation: https://devdocs.io/cpp/
+> 
+
 
 ---
 
@@ -12,6 +16,7 @@
 | Declare a constant | `const float PI = 3.14159f;` |
 | Declare without initial value | `int score;` (uninitialized — dangerous) |
 | Use auto type deduction | `auto name = "Player";` |
+| Modern C++ | `int mana {100};`
 
 ### Common Types
 
@@ -60,6 +65,13 @@ if (health <= 0) {
     std::cout << "Alive" << std::endl;
 }
 ```
+Ternary Operator (If / Else)
+
+```cpp
+// Variable = Condition ? <Value if True> : <Value if False>;
+status = health <= 0 ? "Dead" : "Alive";
+```
+
 
 ### Comparison Operators
 
@@ -70,7 +82,7 @@ if (health <= 0) {
 | `<` `>` | Less / greater than |
 | `<=` `>=` | Less / greater or equal |
 | `&&` | AND |
-| `||` | OR |
+| `\|\|` | OR |
 | `!` | NOT |
 
 ---
@@ -78,22 +90,22 @@ if (health <= 0) {
 ## Loops
 
 ```cpp
-// For loop — known iterations
+// For loop - when you know the start/end
 for (int i = 0; i < 10; i++) {
     std::cout << i << std::endl;
 }
 
-// While loop — condition-based
+// While loop - until a condition
 while (health > 0) {
     health--;
 }
 
-// Do-while — runs at least once
+// Do-while — until a condition but always runs once
 do {
     std::cout << "Menu" << std::endl;
 } while (choice != 0);
 
-// Range-based for — iterate over collection
+// iterates over a collection
 for (int num : numbers) {
     std::cout << num << std::endl;
 }
