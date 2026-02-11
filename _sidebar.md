@@ -1,7 +1,7 @@
 - [Home](/)
 
 - **C++**
-  - [1 - Quickref](/CPP/cpp_1_intro)
+  - [1 - Quickref](/CPP/CPP_1_Intro)
 
 - **Unreal Engine C++**
   - [0 - Quickref](/unreal/UnrealCPP_0_Quickref)
