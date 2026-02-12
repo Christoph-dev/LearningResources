@@ -287,7 +287,22 @@ TBD
 
 ## Adding Feel
 
-TBD
+WIP  
+- Increase Gravity of Player
+- Increase Jump Velocity
+- Increase Walk Speed
+- Increase Air Controls
+- Make Physical Material for Ball
+- Increase Restitution for Ball Material
+- Apply it to Ball
+
+- Add Input Action - Kick Ball, Add it to IMC
+- Add Trigger box to Character, put it infront of Character
+- Get Overlapping Actors from trigger box
+- Change Class filter to ball
+- for each actor in trigger box
+
+<img width="1275" height="349" alt="image" src="https://github.com/user-attachments/assets/f4ce4378-7d12-4d37-b5b4-fc740d4ec64a" />
 
 ## Backdrop ARt
 
