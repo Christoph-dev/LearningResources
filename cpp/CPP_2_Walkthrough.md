@@ -43,29 +43,35 @@ int main()
 
 ###  Practice
 
-1. Change the message to print your game studio name
-2. Make the program print three lines: your name, your favorite game, and why you're learning C++
+1. Make the program print three lines: your name, your favorite game, and why you're learning C++
 
 ---
 
 ## 1. Variables & Types
 
 ```cpp
-int health = 100;           // whole numbers
-float speed = 5.5f;         // decimals (the 'f' matters!)
-double preciseValue = 3.14159265359;  // more precision
-bool isAlive = true;        // true or false
-char grade = 'A';           // single character
-std::string playerName = "Hero";  // text (needs #include <string>)
+int a;         // uninitiallised, avoid this
+int a = 1;     // initialised - C-Style, Unreal uses this
+
+int c {};      // uninitialised, but safe - Modern C++
+int d {1};     // initialised - Modern C++
+```
+
+Types
+```cpp
+int health = 100;                   // whole numbers
+float speed = 5.5f;                 // decimals (note the f)
+bool isAlive = true;                // true or false
+char grade = 'A';                   // single character
+std::string playerName = "Hero";    // text (needs #include <string>)
 ```
 
 **UE Context:** Unreal uses similar types: `int32`, `float`, `bool`, `FString`
 
 ###  Practice
 
-1. Create a character stat sheet with variables for: `playerName`, `health`, `mana`, `stamina`, `level`, and `isPlayerOne`
-2. Create variables to describe a weapon: its name, damage, fire rate, and whether it's automatic
-3. Print all your variables using `std::cout`
+1. Create a character stat sheet with variables for: `playerName`, `health percent`, `level`, and `isPlayerOne`
+2. Print all your variables using `std::cout`
 
 ---
 
@@ -76,7 +82,7 @@ int damage = 25;
 int health = 100;
 
 health = health - damage;   // health is now 75
-health -= damage;           // same thing, shorter
+health -= damage;           // shorthand
 
 int double_damage = damage * 2;
 int half_damage = damage / 2;
