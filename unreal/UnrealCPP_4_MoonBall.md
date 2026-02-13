@@ -125,6 +125,10 @@ Create the SpawnGoal Function
 
 <img width="333" height="83" alt="image" src="https://github.com/user-attachments/assets/6393274e-2b84-4753-850c-0aed268ee51a" />
 
+Also, goto the Event Graph of BP_Manager and add a new custom event called Goal.  
+<img width="260" height="227" alt="image" src="https://github.com/user-attachments/assets/60155ba9-9b2e-4e53-92a0-4f7efdced8ab" />
+
+
 ### BP_Goal Setup
 
 Before implementing the manager functions, add a Manager reference variable to BP_Goal:
@@ -191,45 +195,48 @@ public:
 `MyBlueprintFunctionLibrary.cpp`:
 
 ```cpp
+// Fill out your copyright notice in the Description page of Project Settings.
+
+
 #include "MyBlueprintFunctionLibrary.h"
 
 void UMyBlueprintFunctionLibrary::GetRandomPerimeterSpawn(
-    float FloorHalfWidth,
-    float GoalHalfWidth,
-    FVector Center,
-    FVector& OutLocation,
-    FRotator& OutRotation)
+	float FloorHalfWidth, 
+	float GoalHalfWidth, 
+	FVector Center, 
+	FVector& OutLocation, 
+	FRotator& OutRotation)
 {
-    int32 Edge = FMath::RandRange(0, 3);
-    float EdgePos = FMath::FRandRange(-1.0f, 1.0f);
-    float SafeRange = FloorHalfWidth - GoalHalfWidth;
+	int32 Edge = FMath::RandRange(0, 3);
+	float EdgePos = FMath::FRandRange(-1.0f, 1.0);
+	float SafeRange = FloorHalfWidth - GoalHalfWidth;
 
-    OutLocation = Center;
+	OutLocation = Center;
 
-    if (Edge == 0) // North
-    {
-        OutLocation.X += FloorHalfWidth;
-        OutLocation.Y += EdgePos * SafeRange;
-    }
-    else if (Edge == 1) // East
-    {
-        OutLocation.X += EdgePos * SafeRange;
-        OutLocation.Y += FloorHalfWidth;
-    }
-    else if (Edge == 2) // South
-    {
-        OutLocation.X -= FloorHalfWidth;
-        OutLocation.Y += EdgePos * SafeRange;
-    }
-    else // West
-    {
-        OutLocation.X += EdgePos * SafeRange;
-        OutLocation.Y -= FloorHalfWidth;
-    }
-
-    FVector DirectionToCenter = Center - OutLocation;
-    DirectionToCenter.Z = 0.0f;
-    OutRotation = DirectionToCenter.Rotation();
+	if (Edge == 0)
+	{
+		OutLocation.X += FloorHalfWidth;
+		OutLocation.Y += EdgePos * SafeRange;
+		OutRotation = { 0, 90, 0 };
+	}
+	else if (Edge == 1)
+	{
+		OutLocation.X += EdgePos * SafeRange;
+		OutLocation.Y += FloorHalfWidth;
+		OutRotation = { 0, 0, 0 };
+	}
+	else if (Edge == 2)
+	{
+		OutLocation.X += FloorHalfWidth;
+		OutLocation.Y += EdgePos * SafeRange;
+		OutRotation = { 0, 90, 0 };
+	}
+	else
+	{
+		OutLocation.X += EdgePos * SafeRange;
+		OutLocation.Y += FloorHalfWidth;
+		OutRotation = { 0, 0, 0 };
+	}
 }
 ```
 
