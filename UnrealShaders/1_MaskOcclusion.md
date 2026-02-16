@@ -9,7 +9,7 @@
 
 ### 1. Create a Material, set it to Mask and add this node network
 
-<img width="1276" height="450" alt="image" src="https://github.com/user-attachments/assets/64330860-f13d-4e1f-818e-c2e7ecbcb872" />
+<img width="1276" height="350" alt="image" src="https://github.com/user-attachments/assets/64330860-f13d-4e1f-818e-c2e7ecbcb872" />
 
 ### But if you need the ceiling to also be a floor  
 _for example if you can walk on the roof_  
