@@ -15,18 +15,18 @@
 _for example if you can walk on the roof_  
 
 Add the bottom section.
-<img width="1452" height="898" alt="image" src="https://github.com/user-attachments/assets/fff82410-ab2e-48ef-945a-34cda88292bb" />
+<img style="max-width: 100%; height: auto;" alt="image" src="https://github.com/user-attachments/assets/fff82410-ab2e-48ef-945a-34cda88292bb" />
 
 ## Method 2 - Fade Ceiling with a Trigger
 
-<img width="535" height="395" alt="image" src="https://github.com/user-attachments/assets/156a7620-33b7-4ad5-a2f8-169758cc6c48" />
+<img style="max-width: 100%; height: auto;" alt="image" src="https://github.com/user-attachments/assets/156a7620-33b7-4ad5-a2f8-169758cc6c48" />
 
 
 1. Create a Material Parameter Collection in the Content Drawer
 - Add a Scalar Parameter called `Alpha`  
-<img width="105" height="174" alt="image" src="https://github.com/user-attachments/assets/6a69c146-b900-4a70-acc6-f114bf16c797" />
+<img style="max-width: 100%; height: auto;" alt="image" src="https://github.com/user-attachments/assets/6a69c146-b900-4a70-acc6-f114bf16c797" />
 
-<img width="534" height="453" alt="image" src="https://github.com/user-attachments/assets/b1759474-6574-44aa-8bb7-43a323b5aa3a" />
+<img style="max-width: 100%; height: auto;" alt="image" src="https://github.com/user-attachments/assets/b1759474-6574-44aa-8bb7-43a323b5aa3a" />
 
 2. Create a Material
 - Drag your Material Parameter collection into the Material Graph
