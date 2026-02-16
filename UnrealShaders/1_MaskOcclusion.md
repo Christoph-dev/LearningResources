@@ -1,4 +1,4 @@
-# Mask Occlusion - 2 Methods
+# Mask Occlusion - 2 Methods  
 ![mygif](./MaskOcclusion.gif)
 
 ## Method 1 - Standalone Material
@@ -15,6 +15,7 @@
 _for example if you can walk on the roof_  
 
 Add the bottom section.
+
 <img style="max-width: 100%; height: auto;" alt="image" src="https://github.com/user-attachments/assets/fff82410-ab2e-48ef-945a-34cda88292bb" />
 
 ## Method 2 - Fade Ceiling with a Trigger
@@ -23,7 +24,8 @@ Add the bottom section.
 
 
 1. Create a Material Parameter Collection in the Content Drawer
-- Add a Scalar Parameter called `Alpha`  
+- Add a Scalar Parameter called `Alpha`
+- 
 <img style="max-width: 100%; height: auto;" alt="image" src="https://github.com/user-attachments/assets/6a69c146-b900-4a70-acc6-f114bf16c797" />
 
 <img style="max-width: 100%; height: auto;" alt="image" src="https://github.com/user-attachments/assets/b1759474-6574-44aa-8bb7-43a323b5aa3a" />
@@ -32,17 +34,24 @@ Add the bottom section.
 - Drag your Material Parameter collection into the Material Graph
 - Click on the Collection Parameter node and set it to `Alpha`
 - Add a DitherTemporalAA Node
-- Set the Material type to Mask, and plug these nodes in:  
+- Set the Material type to Mask, and plug these nodes in:
+- 
 <img width="696" height="195" alt="image" src="https://github.com/user-attachments/assets/53927875-df6c-463d-886e-ccb055e3df8e" />
 
-3. Create a Blueprint with a mesh and a trigger box.  
+3. Create a Blueprint with a mesh and a trigger box.
+4. 
 <img width="341" height="164" alt="image" src="https://github.com/user-attachments/assets/09a38ed1-d50d-4f7a-b8a8-374091d17ab0" />
+
+_Ceiling and Trigger box underneath_  
+
+<img width="776" height="509" alt="image" src="https://github.com/user-attachments/assets/64141921-7ef9-4a50-80b9-927816e7124e" />
 
 - Then Create this Graph using trigger overlaps and Timelines
 
 <img width="888" height="493" alt="image" src="https://github.com/user-attachments/assets/28bd7f62-70d2-4d85-a9a8-45a305ecffa7" />
 
 _This is how the timeline looks, it will need a track, and two keys from 1 to 0_
+
 <img width="752" height="373" alt="image" src="https://github.com/user-attachments/assets/ebc838db-9811-4bbc-b1af-9db707438445" />
 
 _Make sure you set the Scalar Parameter Value options_
