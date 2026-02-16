@@ -10,6 +10,9 @@
   - [2 - Quick HowTos](/unreal/UnrealCPP_2_QuickHowTos)
   - [3 - Custom Nodes](/unreal/UnrealCPP_3_CustomFunctions)
   - [4 - Moonball Demo](/unreal/UnrealCPP_4_MoonBall)
+ 
+- **Unreal Shader Techniques**
+  - [1 - Mask Occlusion](/UnrealShaders/1_MaskOcclusion)
 
 - **Houdini**
   - [VEX Cheatsheet](/houdini/vex-cheatsheet)
