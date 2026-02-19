@@ -18,10 +18,17 @@ Add the bottom section.
 
 <img style="max-width: 100%; height: auto;" alt="image" src="https://github.com/user-attachments/assets/fff82410-ab2e-48ef-945a-34cda88292bb" />
 
+_ALTERNATIVE METHOO_  
+<img width="895" height="304" alt="image" src="https://github.com/user-attachments/assets/f519f049-f8ee-4270-ae66-e2eb5525979c" />
+
+Alternative Method Math
+
+$$\hat{\mathbf{V}} \cdot \hat{\mathbf{D}} > t$$
+
+$$\hat{\mathbf{V}} = \frac{\mathbf{P}_{pixel} - \mathbf{P}_{camera}}{|\mathbf{P}_{pixel} - \mathbf{P}_{camera}|}$$  
 ## Method 2 - Fade Ceiling with a Trigger
 
 <img style="max-width: 100%; height: auto;" alt="image" src="https://github.com/user-attachments/assets/156a7620-33b7-4ad5-a2f8-169758cc6c48" />
-
 
 1. Create a Material Parameter Collection in the Content Drawer
 - Add a Scalar Parameter called `Alpha`
