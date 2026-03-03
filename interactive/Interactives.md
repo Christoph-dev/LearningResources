@@ -1,2 +1,2 @@
 - **Interactives**
-  - [Vector Math](https://github.com/Christoph-dev/LearningResources/blob/main/interactive/vector-math.html)
+  - [Vector Math](interactive/vector-math.html ':ignore')
