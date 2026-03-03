@@ -303,7 +303,11 @@ function init() {
   requestAnimationFrame(render);
 }
 
-document.addEventListener("DOMContentLoaded", init);
+if (document.readyState === 'loading') {
+  document.addEventListener("DOMContentLoaded", init);
+} else {
+  init();
+}
 
 function getCx() { return W / 2; }
 function getCy() { return H / 2; }
