@@ -222,7 +222,6 @@ const SCENES = [
   { id: "magnitude", title: "Magnitude & Normalize", desc: "The magnitude (length) of a vector is calculated with Pythagoras: \u221A(x\u00B2 + y\u00B2). To normalize, divide each component by the magnitude \u2014 giving you a unit vector (length = 1) that keeps the direction. Drag to see the math update live." },
   { id: "addition", title: "Adding Vectors", desc: "Vectors add tip-to-tail. Drag both vectors \u2014 the green result is their sum. This is how velocity + wind, or input + gravity combine in games." },
   { id: "dot", title: "The Dot Product", desc: "The dot product tells you how aligned two vectors are. Same direction \u2192 positive. Perpendicular \u2192 zero. Opposite \u2192 negative. The result is a scalar (just a number). Drag to explore." },
-  { id: "cross", title: "The Cross Product", desc: "Unlike dot product which returns a scalar, the cross product returns a NEW VECTOR perpendicular to both inputs. In 2D, that vector points in/out of the screen \u2014 its sign tells you if B is to the left or right of A. Games use this for surface normals, rotation axes, and left/right checks." },
   { id: "fov", title: "Field of View Check", desc: "Games use dot products to test if something is in front of you. Move the enemy around the player. The dot of the facing vector and direction-to-enemy reveals visibility." },
 ];
 
@@ -231,7 +230,6 @@ const CODE = {
   magnitude: `// Magnitude (length) of a vector\nfloat Mag = FMath::Sqrt(\n    V.X * V.X + V.Y * V.Y + V.Z * V.Z);\n// same as: V.Size()\n\n// Normalize = divide by magnitude\nFVector Norm = V / Mag;\n// same as: V.GetSafeNormal()`,
   addition: `// Adding vectors combines them\nFVector Move = Input + Gravity;\nActor->AddActorWorldOffset(\n    Move * DeltaTime);\n// That's basically all movement!`,
   dot: `// Dot product of unit vectors\nfloat D = FVector::DotProduct(\n    A.GetSafeNormal(),\n    B.GetSafeNormal());\n//  1.0 = same direction\n//  0.0 = perpendicular\n// -1.0 = opposite`,
-  cross: `// Cross product returns a VECTOR\n// In 3D: perpendicular to both inputs\nFVector C = FVector::CrossProduct(A, B);\n// C.Size() = area of parallelogram\n// C direction = right-hand rule\n\n// 2D shortcut: just the Z component\nfloat Z = A.X * B.Y - A.Y * B.X;\n// Z > 0 = B is LEFT of A\n// Z < 0 = B is RIGHT of A`,
   fov: `// Is the enemy in my field of view?\nFVector ToEnemy = (Enemy->GetActorLocation()\n    - Player->GetActorLocation())\n    .GetSafeNormal();\nfloat D = FVector::DotProduct(\n    Player->GetActorForwardVector(),\n    ToEnemy);\nif (D > FMath::Cos(FMath::DegreesToRadians(\n                   FOVAngle / 2.f))) {\n    // Enemy is visible!\n}`,
 };
 
@@ -262,7 +260,7 @@ function resize() {
 function updateUI() {
   const sc = SCENES[currentScene];
   descEl.textContent = sc.desc;
-  codeLabelEl.textContent = sc.id === "fov" ? "Unreal Engine / C++ \u2014 FOV Check" : sc.id === "magnitude" ? "Unreal Engine / C++ \u2014 Magnitude & Normalize" : sc.id === "cross" ? "Unreal Engine / C++ \u2014 Cross Product" : `Unreal Engine / C++ \u2014 ${sc.title}`;
+  codeLabelEl.textContent = sc.id === "fov" ? "Unreal Engine / C++ \u2014 FOV Check" : sc.id === "magnitude" ? "Unreal Engine / C++ \u2014 Magnitude & Normalize" : `Unreal Engine / C++ \u2014 ${sc.title}`;
   codeContentEl.textContent = CODE[sc.id];
 }
 
@@ -527,113 +525,6 @@ function render() {
     infoPanelEl.innerHTML = `<div class="info-context"><span style="color:#ff9f43;font-weight:600">${meaning}</span><span style="opacity:0.4;margin-left:8px">\u2014 Games use this for: lighting (Lambert shading), slope detection, AI facing checks, camera angles</span></div>`;
   }
 
-  if (id === "cross") {
-    const a = state.vecA, b = state.vecB;
-
-    // Cross product (2D = z-component only)
-    const cross = a.x * b.y - a.y * b.x;
-    const crossNorm = cross / 40 / 40;
-
-    // Draw parallelogram area
-    ctx.beginPath();
-    ctx.moveTo(cx, cy);
-    ctx.lineTo(cx + a.x, cy + a.y);
-    ctx.lineTo(cx + a.x + b.x, cy + a.y + b.y);
-    ctx.lineTo(cx + b.x, cy + b.y);
-    ctx.closePath();
-    const areaCol = cross > 0 ? "rgba(180,120,255,0.1)" : "rgba(255,180,60,0.1)";
-    ctx.fillStyle = areaCol;
-    ctx.fill();
-    ctx.strokeStyle = cross > 0 ? "rgba(180,120,255,0.25)" : "rgba(255,180,60,0.25)";
-    ctx.lineWidth = 1;
-    ctx.setLineDash([4, 4]);
-    ctx.stroke();
-    ctx.setLineDash([]);
-
-    // Draw vectors
-    drawArrow(cx, cy, cx + a.x, cy + a.y, "#64dcff", 3, 14);
-    drawArrow(cx, cy, cx + b.x, cy + b.y, "#ff9f43", 3, 14);
-    drawHandle(cx + a.x, cy + a.y, "#64dcff");
-    drawHandle(cx + b.x, cy + b.y, "#ff9f43");
-
-    drawLabel("A", cx + a.x + 12, cy + a.y - 6, "#64dcff", 14);
-    drawLabel("B", cx + b.x + 12, cy + b.y - 6, "#ff9f43", 14);
-
-    // Result vector indicator (perpendicular = out of / into screen)
-    const outward = cross > 0;
-    const resultCol = "#b478ff";
-    const indicatorX = cx + 0;
-    const indicatorY = cy + 0;
-    const indicatorR = 18;
-
-    // Draw circle for the Z-axis result
-    ctx.beginPath();
-    ctx.arc(indicatorX, indicatorY, indicatorR, 0, TAU);
-    ctx.strokeStyle = resultCol;
-    ctx.lineWidth = 2.5;
-    ctx.stroke();
-    ctx.fillStyle = "rgba(180,120,255,0.08)";
-    ctx.fill();
-
-    if (Math.abs(cross) < 200) {
-      // Near zero — draw a line (vector grazing the plane)
-      ctx.beginPath();
-      ctx.moveTo(indicatorX - 8, indicatorY);
-      ctx.lineTo(indicatorX + 8, indicatorY);
-      ctx.strokeStyle = "rgba(255,255,255,0.3)";
-      ctx.lineWidth = 2;
-      ctx.stroke();
-    } else if (outward) {
-      // Dot = coming toward you (out of screen)
-      ctx.beginPath();
-      ctx.arc(indicatorX, indicatorY, 4, 0, TAU);
-      ctx.fillStyle = resultCol;
-      ctx.fill();
-    } else {
-      // X = going into screen
-      const xs = 7;
-      ctx.strokeStyle = resultCol;
-      ctx.lineWidth = 2.5;
-      ctx.lineCap = "round";
-      ctx.beginPath();
-      ctx.moveTo(indicatorX - xs, indicatorY - xs);
-      ctx.lineTo(indicatorX + xs, indicatorY + xs);
-      ctx.stroke();
-      ctx.beginPath();
-      ctx.moveTo(indicatorX + xs, indicatorY - xs);
-      ctx.lineTo(indicatorX - xs, indicatorY + xs);
-      ctx.stroke();
-    }
-
-    // Direction label next to indicator
-    const zDir = Math.abs(cross) < 200 ? "Z \u2248 0 (parallel)" : outward ? "\u2299 Z+ (out of screen)" : "\u2297 Z\u2212 (into screen)";
-    drawLabel(zDir, indicatorX + 26, indicatorY + 5, resultCol, 12);
-
-    // Comparison panel top-left
-    drawLabel("DOT PRODUCT \u2192 scalar", 16, 24, "rgba(100,220,255,0.4)", 10);
-    const [nax, nay] = vecNorm(a.x, a.y);
-    const [nbx, nby] = vecNorm(b.x, b.y);
-    const d = dot(nax, nay, nbx, nby);
-    drawLabel(`A \u00B7 B = ${d.toFixed(3)}`, 16, 44, "#64dcff", 13);
-    drawLabel("(just a number: how aligned)", 16, 60, "rgba(200,214,229,0.35)", 10);
-
-    drawLabel("CROSS PRODUCT \u2192 vector", 16, 88, "rgba(180,120,255,0.5)", 10);
-    drawLabel(`A \u00D7 B = (0, 0, ${crossNorm.toFixed(3)})`, 16, 108, resultCol, 13);
-    drawLabel("(a new vector: perpendicular to both)", 16, 124, "rgba(200,214,229,0.35)", 10);
-
-    // Parallelogram area label
-    drawLabel(`|A \u00D7 B| = parallelogram area`, 16, 152, "rgba(255,255,255,0.25)", 10);
-
-    // Left/right indicator
-    const side = Math.abs(cross) < 200 ? "parallel / collinear" : outward ? "B is to the LEFT of A" : "B is to the RIGHT of A";
-    const sideCol = Math.abs(cross) < 200 ? "rgba(255,255,255,0.5)" : outward ? "#b478ff" : "#ff9f43";
-
-    infoPanelEl.style.display = "flex";
-    infoPanelEl.innerHTML =
-      `<div class="info-tag" style="background:rgba(180,120,255,0.06);border:1px solid rgba(180,120,255,0.15);color:${sideCol}">${side}</div>` +
-      `<div class="info-context"><span style="color:#64dcff;font-weight:600">Dot</span> = scalar (alignment). <span style="color:#b478ff;font-weight:600">Cross</span> = vector (perpendicular). In 3D: surface normals, rotation axes, winding order. In 2D: left/right steering, signed angles.</div>`;
-  }
-
   if (id === "fov") {
     const a = state.vecA, e = state.enemy;
     const facing = Math.atan2(a.y, a.x);
@@ -689,9 +580,6 @@ function onDown(e) {
     if (hit(x, y, state.vecA.x, state.vecA.y)) dragging = "vecA";
     else if (hit(x, y, state.vecA.x + state.vecB.x, state.vecA.y + state.vecB.y)) dragging = "vecB_tip";
   } else if (id === "dot") {
-    if (hit(x, y, state.vecA.x, state.vecA.y)) dragging = "vecA";
-    else if (hit(x, y, state.vecB.x, state.vecB.y)) dragging = "vecB";
-  } else if (id === "cross") {
     if (hit(x, y, state.vecA.x, state.vecA.y)) dragging = "vecA";
     else if (hit(x, y, state.vecB.x, state.vecB.y)) dragging = "vecB";
   } else if (id === "fov") {
