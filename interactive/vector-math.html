@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vector Math for Game Dev</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #06080f;
+    min-height: 100vh;
+    font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', monospace;
+    color: #c8d6e5;
+    overflow-x: hidden;
+  }
+  ::-webkit-scrollbar { height: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(100,220,255,0.15); border-radius: 2px; }
+
+  .header {
+    padding: 20px 24px 0;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .pulse-dot {
+    width: 8px; height: 8px;
+    background: #50ff78;
+    border-radius: 50%;
+    box-shadow: 0 0 12px #50ff78;
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+  .header h1 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: #64dcff;
+    letter-spacing: -0.5px;
+  }
+  .header h1 .dim { color: rgba(100,220,255,0.3); font-weight: 400; }
+  .header h1 .accent { color: #ff9f43; }
+
+  .tabs {
+    display: flex;
+    gap: 0;
+    padding: 16px 24px 0;
+    border-bottom: 1px solid rgba(100,220,255,0.08);
+    overflow-x: auto;
+  }
+  .tab {
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: rgba(200,214,229,0.4);
+    padding: 10px 16px;
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    white-space: nowrap;
+    transition: all 0.2s;
+  }
+  .tab.active {
+    background: rgba(100,220,255,0.08);
+    border-bottom-color: #64dcff;
+    color: #64dcff;
+  }
+  .tab .num { opacity: 0.4; margin-right: 6px; }
+
+  .desc {
+    padding: 16px 24px;
+    font-size: 13px;
+    line-height: 1.7;
+    color: rgba(200,214,229,0.65);
+    max-width: 700px;
+  }
+
+  .canvas-wrap {
+    padding: 0 24px;
+    max-width: 100%;
+  }
+  .canvas-inner {
+    position: relative;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid rgba(100,220,255,0.1);
+    box-shadow: 0 0 40px rgba(100,220,255,0.03), inset 0 0 60px rgba(0,0,0,0.3);
+  }
+  #mainCanvas {
+    width: 100%;
+    display: block;
+    cursor: crosshair;
+    touch-action: none;
+  }
+  .scanlines {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px);
+  }
+
+  .code-wrap { padding: 16px 24px; max-width: 700px; }
+  .code-box {
+    background: rgba(100,220,255,0.03);
+    border: 1px solid rgba(100,220,255,0.08);
+    border-radius: 6px;
+    padding: 14px 18px;
+    position: relative;
+    overflow: hidden;
+  }
+  .code-box::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 3px; height: 100%;
+    background: linear-gradient(180deg, #64dcff, #ff9f43);
+    border-radius: 3px 0 0 3px;
+  }
+  .code-label {
+    font-size: 9px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: rgba(100,220,255,0.4);
+    margin-bottom: 10px;
+    font-weight: 700;
+  }
+  .code-box pre {
+    margin: 0;
+    font-size: 12px;
+    line-height: 1.65;
+    color: rgba(200,214,229,0.8);
+    overflow-x: auto;
+    font-family: inherit;
+  }
+
+  #infoPanel {
+    padding: 0 24px 16px;
+    display: none;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .info-tag {
+    border-radius: 6px;
+    padding: 10px 16px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .info-context {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 6px;
+    padding: 10px 16px;
+    font-size: 12px;
+    color: rgba(200,214,229,0.5);
+  }
+
+  .footer {
+    padding: 8px 24px 24px;
+    font-size: 11px;
+    color: rgba(200,214,229,0.2);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .footer .hint-icon {
+    display: inline-block;
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(100,220,255,0.2);
+    line-height: 16px;
+    text-align: center;
+    font-size: 10px;
+    color: rgba(100,220,255,0.3);
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="pulse-dot"></div>
+  <h1>VECTOR MATH<span class="dim"> for </span><span class="accent">GAME DEV</span></h1>
+</div>
+
+<div class="tabs" id="tabs"></div>
+<div class="desc" id="desc"></div>
+
+<div class="canvas-wrap">
+  <div class="canvas-inner">
+    <canvas id="mainCanvas"></canvas>
+    <div class="scanlines"></div>
+  </div>
+</div>
+
+<div class="code-wrap">
+  <div class="code-box">
+    <div class="code-label" id="codeLabel"></div>
+    <pre id="codeContent"></pre>
+  </div>
+</div>
+
+<div id="infoPanel"></div>
+
+<div class="footer">
+  <span class="hint-icon">?</span>
+  Drag the circle handles to interact. All vectors originate from center (the origin).
+</div>
+
+<script>
+const TAU = Math.PI * 2;
+const DEG = 180 / Math.PI;
+function vecLen(x, y) { return Math.sqrt(x * x + y * y); }
+function vecNorm(x, y) { const l = vecLen(x, y) || 1; return [x / l, y / l]; }
+function dot(ax, ay, bx, by) { return ax * bx + ay * by; }
+function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+
+const SCENES = [
+  { id: "basics", title: "What Is a Vector?", desc: "A vector is a direction + magnitude. Drag the arrow tip to change it. In games, vectors describe movement, facing, forces \u2014 everything spatial." },
+  { id: "magnitude", title: "Magnitude & Normalize", desc: "The magnitude (length) of a vector is calculated with Pythagoras: \u221A(x\u00B2 + y\u00B2). To normalize, divide each component by the magnitude \u2014 giving you a unit vector (length = 1) that keeps the direction. Drag to see the math update live." },
+  { id: "addition", title: "Adding Vectors", desc: "Vectors add tip-to-tail. Drag both vectors \u2014 the green result is their sum. This is how velocity + wind, or input + gravity combine in games." },
+  { id: "dot", title: "The Dot Product", desc: "The dot product tells you how aligned two vectors are. Same direction \u2192 positive. Perpendicular \u2192 zero. Opposite \u2192 negative. Drag to explore." },
+  { id: "fov", title: "Field of View Check", desc: "Games use dot products to test if something is in front of you. Move the enemy around the player. The dot of the facing vector and direction-to-enemy reveals visibility." },
+];
+
+const CODE = {
+  basics: `// A vector is just (X, Y, Z)\nFVector Velocity = FVector(300.f, -150.f, 0.f);\nfloat Speed = Velocity.Size();\nFVector Direction = Velocity.GetSafeNormal();`,
+  magnitude: `// Magnitude (length) of a vector\nfloat Mag = FMath::Sqrt(\n    V.X * V.X + V.Y * V.Y + V.Z * V.Z);\n// same as: V.Size()\n\n// Normalize = divide by magnitude\nFVector Norm = V / Mag;\n// same as: V.GetSafeNormal()`,
+  addition: `// Adding vectors combines them\nFVector Move = Input + Gravity;\nActor->AddActorWorldOffset(\n    Move * DeltaTime);\n// That's basically all movement!`,
+  dot: `// Dot product of unit vectors\nfloat D = FVector::DotProduct(\n    A.GetSafeNormal(),\n    B.GetSafeNormal());\n//  1.0 = same direction\n//  0.0 = perpendicular\n// -1.0 = opposite`,
+  fov: `// Is the enemy in my field of view?\nFVector ToEnemy = (Enemy->GetActorLocation()\n    - Player->GetActorLocation())\n    .GetSafeNormal();\nfloat D = FVector::DotProduct(\n    Player->GetActorForwardVector(),\n    ToEnemy);\nif (D > FMath::Cos(FMath::DegreesToRadians(\n                   FOVAngle / 2.f))) {\n    // Enemy is visible!\n}`,
+};
+
+let currentScene = 0;
+let time = 0;
+let dragging = null;
+
+const state = {
+  vecA: { x: 100, y: -60 },
+  vecB: { x: 60, y: 80 },
+  enemy: { x: 140, y: -80 },
+};
+
+const canvas = document.getElementById("mainCanvas");
+const ctx = canvas.getContext("2d");
+const tabsEl = document.getElementById("tabs");
+const descEl = document.getElementById("desc");
+const codeLabelEl = document.getElementById("codeLabel");
+const codeContentEl = document.getElementById("codeContent");
+const infoPanelEl = document.getElementById("infoPanel");
+
+// Build tabs
+SCENES.forEach((s, i) => {
+  const btn = document.createElement("button");
+  btn.className = "tab" + (i === 0 ? " active" : "");
+  btn.innerHTML = `<span class="num">0${i + 1}</span>${s.title}`;
+  btn.addEventListener("click", () => {
+    currentScene = i;
+    document.querySelectorAll(".tab").forEach((t, j) => t.classList.toggle("active", j === i));
+    updateUI();
+  });
+  tabsEl.appendChild(btn);
+});
+
+function updateUI() {
+  const sc = SCENES[currentScene];
+  descEl.textContent = sc.desc;
+  codeLabelEl.textContent = sc.id === "fov" ? "Unreal Engine / C++ \u2014 FOV Check" : sc.id === "magnitude" ? "Unreal Engine / C++ \u2014 Magnitude & Normalize" : `Unreal Engine / C++ \u2014 ${sc.title}`;
+  codeContentEl.textContent = CODE[sc.id];
+}
+updateUI();
+
+// Sizing
+let W = 700, H = 460;
+function resize() {
+  const wrap = canvas.parentElement.parentElement;
+  const w = wrap.clientWidth - 48;
+  W = Math.floor(w);
+  H = Math.max(360, Math.min(520, Math.floor(W * 0.62)));
+  canvas.style.height = H + "px";
+}
+window.addEventListener("resize", resize);
+resize();
+
+function getCx() { return W / 2; }
+function getCy() { return H / 2; }
+
+// Drawing helpers
+function drawGrid(cx, cy) {
+  const step = 40;
+  ctx.strokeStyle = "rgba(100,220,255,0.06)";
+  ctx.lineWidth = 1;
+  for (let x = cx % step; x < W; x += step) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke(); }
+  for (let y = cy % step; y < H; y += step) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke(); }
+  ctx.strokeStyle = "rgba(100,220,255,0.15)"; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(cx, 0); ctx.lineTo(cx, H); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(0, cy); ctx.lineTo(W, cy); ctx.stroke();
+}
+
+function drawArrow(x1, y1, x2, y2, color, lw, headSize) {
+  lw = lw || 2.5; headSize = headSize || 12;
+  const dx = x2 - x1, dy = y2 - y1, angle = Math.atan2(dy, dx);
+  ctx.strokeStyle = color; ctx.fillStyle = color; ctx.lineWidth = lw; ctx.lineCap = "round";
+  ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(x2, y2);
+  ctx.lineTo(x2 - headSize * Math.cos(angle - 0.4), y2 - headSize * Math.sin(angle - 0.4));
+  ctx.lineTo(x2 - headSize * Math.cos(angle + 0.4), y2 - headSize * Math.sin(angle + 0.4));
+  ctx.closePath(); ctx.fill();
+}
+
+function drawHandle(x, y, color, r) {
+  r = r || 7;
+  ctx.beginPath(); ctx.arc(x, y, r, 0, TAU);
+  ctx.fillStyle = color; ctx.globalAlpha = 0.35; ctx.fill();
+  ctx.globalAlpha = 1; ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.stroke();
+}
+
+function drawDashedLine(x1, y1, x2, y2, color) {
+  ctx.setLineDash([6, 4]); ctx.strokeStyle = color; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke(); ctx.setLineDash([]);
+}
+
+function drawArc(cx, cy, r, a1, a2, color, lw) {
+  ctx.strokeStyle = color; ctx.lineWidth = lw || 2;
+  ctx.beginPath(); ctx.arc(cx, cy, r, a1, a2, a2 < a1); ctx.stroke();
+}
+
+function drawLabel(text, x, y, color, size) {
+  ctx.font = `600 ${size || 13}px 'JetBrains Mono', 'Fira Code', monospace`;
+  ctx.fillStyle = color; ctx.fillText(text, x, y);
+}
+
+function drawPlayer(x, y, angle, color) {
+  ctx.save(); ctx.translate(x, y); ctx.rotate(angle);
+  ctx.fillStyle = color || "#64dcff"; ctx.strokeStyle = color || "#64dcff"; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(16, 0); ctx.lineTo(-10, -11); ctx.lineTo(-5, 0); ctx.lineTo(-10, 11); ctx.closePath();
+  ctx.fill(); ctx.globalAlpha = 0.25; ctx.stroke(); ctx.globalAlpha = 1; ctx.restore();
+}
+
+function drawEnemy(x, y, pulse) {
+  const s = 10 + Math.sin(pulse) * 2;
+  ctx.save(); ctx.translate(x, y); ctx.rotate(Math.PI / 4);
+  ctx.fillStyle = "#ff4466";
+  ctx.globalAlpha = 0.3; ctx.fillRect(-s * 1.4, -s * 1.4, s * 2.8, s * 2.8);
+  ctx.globalAlpha = 1; ctx.fillRect(-s, -s, s * 2, s * 2);
+  ctx.restore();
+}
+
+function drawFov(cx, cy, angle, halfFov, radius, visible) {
+  const a1 = angle - halfFov, a2 = angle + halfFov;
+  ctx.beginPath(); ctx.moveTo(cx, cy); ctx.arc(cx, cy, radius, a1, a2); ctx.closePath();
+  ctx.fillStyle = visible ? "rgba(80,255,120,0.07)" : "rgba(255,68,102,0.05)"; ctx.fill();
+  ctx.strokeStyle = visible ? "rgba(80,255,120,0.3)" : "rgba(255,68,102,0.2)"; ctx.lineWidth = 1.5; ctx.stroke();
+}
+
+// Render loop
+function render() {
+  time += 0.03;
+  canvas.width = W * 2; canvas.height = H * 2;
+  ctx.scale(2, 2);
+  const cx = getCx(), cy = getCy();
+
+  ctx.fillStyle = "#0a0e17"; ctx.fillRect(0, 0, W, H);
+  drawGrid(cx, cy);
+
+  const id = SCENES[currentScene].id;
+  let infoHTML = "";
+
+  if (id === "basics") {
+    const v = state.vecA;
+    drawArrow(cx, cy, cx + v.x, cy + v.y, "#64dcff", 3, 14);
+    drawHandle(cx + v.x, cy + v.y, "#64dcff");
+    const len = vecLen(v.x, v.y);
+    const ang = Math.atan2(-v.y, v.x) * DEG;
+    drawLabel(`(${(v.x / 40).toFixed(1)}, ${(-v.y / 40).toFixed(1)})`, cx + v.x + 14, cy + v.y - 6, "#64dcff");
+    drawLabel(`length: ${(len / 40).toFixed(2)}`, 16, 28, "rgba(100,220,255,0.7)", 12);
+    drawLabel(`angle: ${ang.toFixed(1)}\u00B0`, 16, 48, "rgba(100,220,255,0.7)", 12);
+    const [nx, ny] = vecNorm(v.x, v.y);
+    drawArrow(cx, cy, cx + nx * 55, cy + ny * 55, "#ffcc00", 3, 12);
+    drawLabel("normalized (length = 1)", cx + nx * 55 + 14, cy + ny * 55 + 4, "#ffcc00", 12);
+    infoPanelEl.style.display = "none";
+  }
+
+  if (id === "magnitude") {
+    const v = state.vecA;
+    const vx = v.x / 40, vy = -v.y / 40;
+    const mag = vecLen(v.x, v.y);
+    const magU = mag / 40;
+    const [nx, ny] = vecNorm(v.x, v.y);
+
+    // Draw the right-angle triangle
+    ctx.setLineDash([4, 4]);
+    ctx.strokeStyle = "rgba(255,159,67,0.35)"; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(cx + v.x, cy); ctx.lineTo(cx + v.x, cy + v.y); ctx.stroke();
+    ctx.strokeStyle = "rgba(100,220,255,0.35)";
+    ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(cx + v.x, cy); ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Right angle marker
+    const rs = 10;
+    const sx = v.x > 0 ? -1 : 1;
+    const sy = v.y > 0 ? -1 : 1;
+    ctx.strokeStyle = "rgba(255,255,255,0.15)"; ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(cx + v.x + rs * sx, cy + v.y);
+    ctx.lineTo(cx + v.x + rs * sx, cy + v.y + rs * sy);
+    ctx.lineTo(cx + v.x, cy + v.y + rs * sy);
+    ctx.stroke();
+
+    // X component label
+    drawLabel(`x = ${vx.toFixed(2)}`, cx + v.x / 2 - 20, cy + (v.y > 0 ? -12 : 18), "rgba(100,220,255,0.6)", 11);
+    // Y component label
+    drawLabel(`y = ${vy.toFixed(2)}`, cx + v.x + (v.x > 0 ? 10 : -60), cy + v.y / 2 + 4, "rgba(255,159,67,0.6)", 11);
+
+    // Main vector arrow
+    drawArrow(cx, cy, cx + v.x, cy + v.y, "#64dcff", 3, 14);
+    drawHandle(cx + v.x, cy + v.y, "#64dcff");
+
+    // Normalized arrow
+    drawArrow(cx, cy, cx + nx * 55, cy + ny * 55, "#ffcc00", 3, 12);
+    drawHandle(cx + nx * 55, cy + ny * 55, "#ffcc00", 5);
+
+    // Magnitude equation - top left
+    const x2s = vx.toFixed(1);
+    const y2s = vy.toFixed(1);
+    drawLabel("MAGNITUDE", 16, 24, "rgba(100,220,255,0.4)", 10);
+    drawLabel(`\u2502v\u2502 = \u221A( x\u00B2 + y\u00B2 )`, 16, 44, "rgba(200,214,229,0.65)", 13);
+    drawLabel(`   = \u221A( ${x2s}\u00B2 + ${y2s}\u00B2 )`, 16, 64, "rgba(200,214,229,0.5)", 12);
+    drawLabel(`   = \u221A( ${(vx*vx).toFixed(1)} + ${(vy*vy).toFixed(1)} )`, 16, 82, "rgba(200,214,229,0.5)", 12);
+    drawLabel(`   = ${magU.toFixed(3)}`, 16, 100, "#64dcff", 13);
+
+    // Normalize equation - below
+    drawLabel("NORMALIZE", 16, 130, "rgba(255,204,0,0.4)", 10);
+    drawLabel(`n = v / \u2502v\u2502`, 16, 150, "rgba(200,214,229,0.65)", 13);
+    drawLabel(`  = (${vx.toFixed(2)}, ${vy.toFixed(2)}) / ${magU.toFixed(3)}`, 16, 170, "rgba(200,214,229,0.5)", 12);
+    const nxU = vx / magU, nyU = vy / magU;
+    drawLabel(`  = (${(isNaN(nxU) ? 0 : nxU).toFixed(3)}, ${(isNaN(nyU) ? 0 : nyU).toFixed(3)})`, 16, 188, "#ffcc00", 13);
+
+    // Length = 1 label on normalized arrow
+    const midNx = cx + nx * 28, midNy = cy + ny * 28;
+    const perpX = -ny, perpY = nx;
+    drawLabel("length = 1", midNx + perpX * 16 - 30, midNy + perpY * 16 + 4, "rgba(255,204,0,0.5)", 10);
+
+    // Magnitude label on main arrow
+    const midX = cx + v.x * 0.55, midY = cy + v.y * 0.55;
+    drawLabel(`\u2502v\u2502 = ${magU.toFixed(2)}`, midX + perpX * 18, midY + perpY * 18, "rgba(100,220,255,0.5)", 11);
+
+    infoPanelEl.style.display = "flex";
+    infoPanelEl.innerHTML =
+      `<div class="info-context"><span style="color:#64dcff;font-weight:600">Magnitude</span> = how far/fast. <span style="color:#ffcc00;font-weight:600">Normalized</span> = which way. Games split these constantly \u2014 e.g. movement = direction.GetSafeNormal() * Speed * DeltaTime.</div>`;
+  }
+
+  if (id === "addition") {
+    const a = state.vecA, b = state.vecB;
+    drawArrow(cx, cy, cx + a.x, cy + a.y, "#64dcff", 2.5, 12);
+    drawArrow(cx + a.x, cy + a.y, cx + a.x + b.x, cy + a.y + b.y, "#ff9f43", 2.5, 12);
+    drawArrow(cx, cy, cx + a.x + b.x, cy + a.y + b.y, "#50ff78", 3, 14);
+    drawDashedLine(cx, cy, cx + b.x, cy + b.y, "rgba(255,159,67,0.25)");
+    drawDashedLine(cx + b.x, cy + b.y, cx + a.x + b.x, cy + a.y + b.y, "rgba(100,220,255,0.25)");
+    drawHandle(cx + a.x, cy + a.y, "#64dcff");
+    drawHandle(cx + a.x + b.x, cy + a.y + b.y, "#ff9f43");
+    drawLabel("A", cx + a.x / 2 - 18, cy + a.y / 2 - 8, "#64dcff", 14);
+    drawLabel("B", cx + a.x + b.x / 2 + 10, cy + a.y + b.y / 2 - 8, "#ff9f43", 14);
+    drawLabel("A + B", cx + (a.x + b.x) / 2 + 12, cy + (a.y + b.y) / 2 + 18, "#50ff78", 14);
+    infoPanelEl.style.display = "none";
+  }
+
+  if (id === "dot") {
+    const a = state.vecA, b = state.vecB;
+    drawArrow(cx, cy, cx + a.x, cy + a.y, "#64dcff", 3, 14);
+    drawArrow(cx, cy, cx + b.x, cy + b.y, "#ff9f43", 3, 14);
+    drawHandle(cx + a.x, cy + a.y, "#64dcff");
+    drawHandle(cx + b.x, cy + b.y, "#ff9f43");
+
+    const [nax, nay] = vecNorm(a.x, a.y);
+    const [nbx, nby] = vecNorm(b.x, b.y);
+    const d = dot(nax, nay, nbx, nby);
+    const angleA = Math.atan2(a.y, a.x), angleB = Math.atan2(b.y, b.x);
+    const col = d > 0.1 ? "rgba(80,255,120,0.6)" : d < -0.1 ? "rgba(255,68,102,0.6)" : "rgba(255,255,255,0.4)";
+    drawArc(cx, cy, 35, Math.min(angleA, angleB), Math.max(angleA, angleB), col);
+
+    const angleDeg = (Math.acos(clamp(d, -1, 1)) * DEG).toFixed(1);
+    const valCol = d > 0.1 ? "#50ff78" : d < -0.1 ? "#ff4466" : "#ffffff";
+    drawLabel(`dot = ${d.toFixed(3)}`, 16, 28, valCol, 14);
+    drawLabel(`angle = ${angleDeg}\u00B0`, 16, 50, "rgba(255,255,255,0.6)", 12);
+
+    const barW = 160, barH = 10, barX = 16, barY = 65;
+    ctx.fillStyle = "rgba(255,255,255,0.08)"; ctx.fillRect(barX, barY, barW, barH);
+    ctx.fillStyle = valCol; ctx.globalAlpha = 0.6; ctx.fillRect(barX, barY, ((d + 1) / 2) * barW, barH); ctx.globalAlpha = 1;
+    drawLabel("-1", barX - 2, barY + barH + 14, "rgba(255,255,255,0.3)", 10);
+    drawLabel("0", barX + barW / 2 - 4, barY + barH + 14, "rgba(255,255,255,0.3)", 10);
+    drawLabel("+1", barX + barW - 8, barY + barH + 14, "rgba(255,255,255,0.3)", 10);
+    drawLabel("A", cx + a.x + 12, cy + a.y - 6, "#64dcff", 14);
+    drawLabel("B", cx + b.x + 12, cy + b.y - 6, "#ff9f43", 14);
+
+    const meaning = d > 0.7 ? "\u2248 same direction" : d > 0.1 ? "somewhat aligned" : d > -0.1 ? "\u2248 perpendicular" : d > -0.7 ? "somewhat opposed" : "\u2248 opposite";
+    infoPanelEl.style.display = "flex";
+    infoPanelEl.innerHTML = `<div class="info-context"><span style="color:#ff9f43;font-weight:600">${meaning}</span><span style="opacity:0.4;margin-left:8px">\u2014 Games use this for: lighting (Lambert shading), slope detection, AI facing checks, camera angles</span></div>`;
+  }
+
+  if (id === "fov") {
+    const a = state.vecA, e = state.enemy;
+    const facing = Math.atan2(a.y, a.x);
+    const halfFov = Math.PI / 4, fovR = 180;
+    const [fx, fy] = vecNorm(a.x, a.y);
+    const [ex, ey] = vecNorm(e.x, e.y);
+    const d = dot(fx, fy, ex, ey);
+    const inFov = d >= Math.cos(halfFov);
+
+    drawFov(cx, cy, facing, halfFov, fovR, inFov);
+    drawArrow(cx, cy, cx + fx * 80, cy + fy * 80, "rgba(100,220,255,0.6)", 2, 10);
+    drawPlayer(cx, cy, facing, "#64dcff");
+    drawDashedLine(cx, cy, cx + e.x, cy + e.y, inFov ? "rgba(80,255,120,0.3)" : "rgba(255,68,102,0.2)");
+    drawEnemy(cx + e.x, cy + e.y, time * 2);
+    drawHandle(cx + e.x, cy + e.y, "#ff4466", 9);
+    drawHandle(cx + a.x, cy + a.y, "#64dcff");
+
+    const tagCol = inFov ? "#50ff78" : "#ff4466";
+    drawLabel(inFov ? "VISIBLE" : "HIDDEN", cx + e.x + 18, cy + e.y - 14, tagCol, 15);
+    drawLabel(`dot(facing, toEnemy) = ${d.toFixed(3)}`, 16, 28, tagCol, 13);
+    drawLabel(`cos(45\u00B0) threshold  = ${Math.cos(halfFov).toFixed(3)}`, 16, 48, "rgba(255,255,255,0.5)", 12);
+    drawLabel("FOV = 90\u00B0", 16, 68, "rgba(255,255,255,0.35)", 11);
+    drawLabel("drag \u25B3 to aim, drag \u25C7 to move enemy", 16, H - 16, "rgba(255,255,255,0.2)", 11);
+
+    infoPanelEl.style.display = "flex";
+    infoPanelEl.innerHTML =
+      `<div class="info-tag" style="background:${inFov ? "rgba(80,255,120,0.06)" : "rgba(255,68,102,0.06)"};border:1px solid ${inFov ? "rgba(80,255,120,0.15)" : "rgba(255,68,102,0.15)"};color:${tagCol}">${inFov ? "\u2713 ENEMY IN FOV" : "\u2717 ENEMY OUTSIDE FOV"}</div>` +
+      `<div class="info-context">In real games: AI alertness, stealth detection, turret targeting, NPC awareness \u2014 all use this exact technique.</div>`;
+  }
+
+  requestAnimationFrame(render);
+}
+requestAnimationFrame(render);
+
+// Input handling
+function getPos(e) {
+  const rect = canvas.getBoundingClientRect();
+  const scaleX = W / rect.width, scaleY = H / rect.height;
+  let clientX, clientY;
+  if (e.touches) { clientX = e.touches[0].clientX; clientY = e.touches[0].clientY; }
+  else { clientX = e.clientX; clientY = e.clientY; }
+  return { x: (clientX - rect.left) * scaleX - getCx(), y: (clientY - rect.top) * scaleY - getCy() };
+}
+function hit(mx, my, px, py, r) { return (mx - px) ** 2 + (my - py) ** 2 < (r || 20) ** 2; }
+
+function onDown(e) {
+  const { x, y } = getPos(e);
+  const id = SCENES[currentScene].id;
+  if (id === "basics") {
+    if (hit(x, y, state.vecA.x, state.vecA.y)) dragging = "vecA";
+  } else if (id === "magnitude") {
+    if (hit(x, y, state.vecA.x, state.vecA.y)) dragging = "vecA";
+  } else if (id === "addition") {
+    if (hit(x, y, state.vecA.x, state.vecA.y)) dragging = "vecA";
+    else if (hit(x, y, state.vecA.x + state.vecB.x, state.vecA.y + state.vecB.y)) dragging = "vecB_tip";
+  } else if (id === "dot") {
+    if (hit(x, y, state.vecA.x, state.vecA.y)) dragging = "vecA";
+    else if (hit(x, y, state.vecB.x, state.vecB.y)) dragging = "vecB";
+  } else if (id === "fov") {
+    if (hit(x, y, state.enemy.x, state.enemy.y, 24)) dragging = "enemy";
+    else if (hit(x, y, state.vecA.x, state.vecA.y)) dragging = "vecA";
+  }
+}
+function onMove(e) {
+  if (!dragging) return;
+  e.preventDefault();
+  const { x, y } = getPos(e);
+  if (dragging === "vecA") { state.vecA.x = x; state.vecA.y = y; }
+  else if (dragging === "vecB") { state.vecB.x = x; state.vecB.y = y; }
+  else if (dragging === "vecB_tip") { state.vecB.x = x - state.vecA.x; state.vecB.y = y - state.vecA.y; }
+  else if (dragging === "enemy") { state.enemy.x = x; state.enemy.y = y; }
+}
+function onUp() { dragging = null; }
+
+canvas.addEventListener("mousedown", onDown);
+canvas.addEventListener("mousemove", onMove);
+canvas.addEventListener("mouseup", onUp);
+canvas.addEventListener("mouseleave", onUp);
+canvas.addEventListener("touchstart", onDown, { passive: false });
+canvas.addEventListener("touchmove", onMove, { passive: false });
+canvas.addEventListener("touchend", onUp);
+</script>
+</body>
+</html>
