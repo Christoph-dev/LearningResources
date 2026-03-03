@@ -188,7 +188,7 @@
 <div class="tabs" id="tabs"></div>
 <div class="desc" id="desc"></div>
 
-<div class="canvas-wrap">
+<div class="canvas-wrap" id="canvasWrap">
   <div class="canvas-inner">
     <canvas id="mainCanvas"></canvas>
     <div class="scanlines"></div>
@@ -243,26 +243,19 @@ const state = {
   enemy: { x: 140, y: -80 },
 };
 
-const canvas = document.getElementById("mainCanvas");
-const ctx = canvas.getContext("2d");
-const tabsEl = document.getElementById("tabs");
-const descEl = document.getElementById("desc");
-const codeLabelEl = document.getElementById("codeLabel");
-const codeContentEl = document.getElementById("codeContent");
-const infoPanelEl = document.getElementById("infoPanel");
+let canvas, ctx, tabsEl, descEl, codeLabelEl, codeContentEl, infoPanelEl, canvasWrap;
 
-// Build tabs
-SCENES.forEach((s, i) => {
-  const btn = document.createElement("button");
-  btn.className = "tab" + (i === 0 ? " active" : "");
-  btn.innerHTML = `<span class="num">0${i + 1}</span>${s.title}`;
-  btn.addEventListener("click", () => {
-    currentScene = i;
-    document.querySelectorAll(".tab").forEach((t, j) => t.classList.toggle("active", j === i));
-    updateUI();
-  });
-  tabsEl.appendChild(btn);
-});
+let W = 700, H = 460;
+
+function resize() {
+  if (!canvasWrap) return;
+  const w = canvasWrap.clientWidth;
+  if (w > 0) {
+    W = Math.floor(w);
+    H = Math.max(360, Math.min(520, Math.floor(W * 0.62)));
+  }
+  canvas.style.height = H + "px";
+}
 
 function updateUI() {
   const sc = SCENES[currentScene];
@@ -270,19 +263,47 @@ function updateUI() {
   codeLabelEl.textContent = sc.id === "fov" ? "Unreal Engine / C++ \u2014 FOV Check" : sc.id === "magnitude" ? "Unreal Engine / C++ \u2014 Magnitude & Normalize" : `Unreal Engine / C++ \u2014 ${sc.title}`;
   codeContentEl.textContent = CODE[sc.id];
 }
-updateUI();
 
-// Sizing
-let W = 700, H = 460;
-function resize() {
-  const wrap = canvas.parentElement.parentElement;
-  const w = wrap.clientWidth - 48;
-  W = Math.floor(w);
-  H = Math.max(360, Math.min(520, Math.floor(W * 0.62)));
-  canvas.style.height = H + "px";
+function init() {
+  canvas = document.getElementById("mainCanvas");
+  ctx = canvas.getContext("2d");
+  tabsEl = document.getElementById("tabs");
+  descEl = document.getElementById("desc");
+  codeLabelEl = document.getElementById("codeLabel");
+  codeContentEl = document.getElementById("codeContent");
+  infoPanelEl = document.getElementById("infoPanel");
+  canvasWrap = document.getElementById("canvasWrap");
+
+  // Build tabs
+  SCENES.forEach((s, i) => {
+    const btn = document.createElement("button");
+    btn.className = "tab" + (i === 0 ? " active" : "");
+    btn.innerHTML = `<span class="num">0${i + 1}</span>${s.title}`;
+    btn.addEventListener("click", () => {
+      currentScene = i;
+      document.querySelectorAll(".tab").forEach((t, j) => t.classList.toggle("active", j === i));
+      updateUI();
+    });
+    tabsEl.appendChild(btn);
+  });
+
+  updateUI();
+  window.addEventListener("resize", resize);
+  resize();
+
+  // Input handlers
+  canvas.addEventListener("mousedown", onDown);
+  canvas.addEventListener("mousemove", onMove);
+  canvas.addEventListener("mouseup", onUp);
+  canvas.addEventListener("mouseleave", onUp);
+  canvas.addEventListener("touchstart", onDown, { passive: false });
+  canvas.addEventListener("touchmove", onMove, { passive: false });
+  canvas.addEventListener("touchend", onUp);
+
+  requestAnimationFrame(render);
 }
-window.addEventListener("resize", resize);
-resize();
+
+document.addEventListener("DOMContentLoaded", init);
 
 function getCx() { return W / 2; }
 function getCy() { return H / 2; }
@@ -532,7 +553,6 @@ function render() {
 
   requestAnimationFrame(render);
 }
-requestAnimationFrame(render);
 
 // Input handling
 function getPos(e) {
@@ -574,13 +594,6 @@ function onMove(e) {
 }
 function onUp() { dragging = null; }
 
-canvas.addEventListener("mousedown", onDown);
-canvas.addEventListener("mousemove", onMove);
-canvas.addEventListener("mouseup", onUp);
-canvas.addEventListener("mouseleave", onUp);
-canvas.addEventListener("touchstart", onDown, { passive: false });
-canvas.addEventListener("touchmove", onMove, { passive: false });
-canvas.addEventListener("touchend", onUp);
 </script>
 </body>
 </html>
