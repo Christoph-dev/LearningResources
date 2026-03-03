@@ -14,8 +14,5 @@
 - **Unreal Shader Techniques**
   - [1 - Mask Occlusion](/UnrealShaders/1_MaskOcclusion)
 
-- **Interactives**
-  - [Vector Math](interactive/vector-math.html) 
-
 - **Houdini**
   - [VEX Cheatsheet](/houdini/vex-cheatsheet)
