@@ -4,6 +4,7 @@
 - **C++**
   - [1 - Quickref](/cpp/CPP_1_Intro)
   - [2 - Walkthrough](/cpp/CPP_2_Walkthrough)
+  - [3 - Hashset](/cpp/hashset)
 
 - **Unreal Engine C++**
   - [0 - Quickref](/unreal/UnrealCPP_0_Quickref)
